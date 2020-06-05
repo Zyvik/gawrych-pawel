@@ -42,7 +42,7 @@ class Car:
         if not (isinstance(car_mass, int) or isinstance(car_mass, float)):
             error_msg = 'car_mass has to be an integer or a folat'
             raise TypeError(error_msg)
-        if not 0 < car_mass < self.MAX_CAR_MASS:
+        if not 0 < car_mass <= self.MAX_CAR_MASS:
             error_msg = f"Car is too heavy (over {self.MAX_CAR_MASS}kg)" \
                         "or breaks laws of physics."
             raise IllegalCarError(error_msg)
