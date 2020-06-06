@@ -34,8 +34,17 @@ class TaskList:
         with open(self.filename, 'w') as file:
             json.dump(json_list, file)
 
+    def get_task(self, hash):
+        if not self.task_dict.get(hash):
+            raise KeyError(f"Task with provided hash: {hash} doesn't exist.")
+        return self.task_dict.get(hash)
+
     def new_task(self, task):
         self.task_dict[task.hash] = task
+        self.save_tasks()
+
+    def delete_task(self, hash):
+        del self.task_dict[hash]
         self.save_tasks()
 
 
@@ -117,7 +126,7 @@ def _create_arg_dict(arg_list):
 
 
 def _validate_action(action):
-    valid_actions = {'add', 'delete', 'edit', 'list', 'help'}
+    valid_actions = {'add', 'delete', 'edit', 'display', 'help'}
     if action not in valid_actions:
         raise ValueError(f'Wrong action - possible actions: {valid_actions}')
 
@@ -126,6 +135,26 @@ def add(arg_dict, task_list):
     new_task = Task(arg_dict)
     task_list.new_task(new_task)
     print(f'New task added succesfully!\n{new_task}')
+
+
+def delete(arg_dict, task_list):
+    hash = arg_dict.get('hash')
+    task_list.delete_task(hash)
+    print(f'Task {hash} deleted succesfully!')
+
+
+def edit(arg_dict, task_list):
+    hash = arg_dict.get('hash')
+    if task_list.get_task(hash):
+        task_list.new_task(Task(arg_dict))
+        task_list.delete_task(hash)
+        print("Task edited succesfully!")
+
+
+def display(arg_dict, task_list):
+    # 'list' would shadow built-in list function
+    for hash, task in task_list.task_dict.items():
+        print(task)
 
 
 if __name__ == '__main__':
