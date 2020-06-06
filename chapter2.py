@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 
 class TaskList:
-    """Class containing OrderedDict"""
+    """'List' is actually an OrderedDict"""
 
     def __init__(self, filename):
         self.filename = filename
@@ -34,7 +34,7 @@ class TaskList:
         # Serialize, sort and save Tasks to a file.
         json_list = [task.serialized_task() for task in self.task_dict.values()]
         # Sort by date string. It actually works because of choosen format
-        json_list.sort(key=lambda x: x['date'] if x['date'] else 'foobar')
+        json_list.sort(key=lambda x: x['date'] if x['date'] else '0', reverse=True)
         # actual save to file
         with open(self.filename, 'w') as file:
             json.dump(json_list, file)
@@ -51,6 +51,44 @@ class TaskList:
     def delete_task(self, hash):
         del self.task_dict[hash]
         self.save_tasks()
+
+    def filter(self, keyword):
+        valid_keywords = {
+            'today': self._filter_today,
+            'all': self._filter_all,
+            'expired': self._filter_expired,
+            'active': self._filter_active
+        }
+        filter_function = valid_keywords.get(keyword)
+        if not filter_function:
+            error_msg = f"Invalid filter: {keyword}!"\
+                        f" Valid filters: {list(valid_keywords.keys())}"
+            raise KeyError(error_msg)
+        filter_function()
+
+    def _filter_today(self):
+        valid_tasks = []
+        for hash, task in self.task_dict.items():
+            if task.date and task.date.date() == datetime.today().date():
+                valid_tasks.append((hash, task))
+        self.task_dict = OrderedDict(valid_tasks)
+
+    def _filter_all(self):
+        pass
+
+    def _filter_expired(self):
+        valid_tasks = []
+        for hash, task in self.task_dict.items():
+            if task.date and task.date < datetime.today():
+                valid_tasks.append((hash, task))
+        self.task_dict = OrderedDict(valid_tasks)
+
+    def _filter_active(self):
+        valid_tasks = []
+        for hash, task in self.task_dict.items():
+            if task.date and task.date > datetime.today():
+                valid_tasks.append((hash, task))
+        self.task_dict = OrderedDict(valid_tasks)
 
 
 class Task:
@@ -179,6 +217,9 @@ def edit(arg_dict, task_list):
 
 def display(arg_dict, task_list):
     # 'list' would shadow built-in list function
+    filter_keyword = arg_dict.get('odd_argument')
+    if filter_keyword:
+        task_list.filter(filter_keyword)
     for hash, task in task_list.task_dict.items():
         print(task)
 
