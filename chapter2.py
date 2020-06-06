@@ -237,9 +237,13 @@ NOTICE: date format is: 'YYYY-MM-DD hh:mm' example: '2020-01-01 01:01'
     print(msg)
 
 
-if __name__ == '__main__':
-    arg_dict = _create_arg_dict(sys.argv)
-    action = arg_dict['action']
+def main(argument_list, filename):
+    arg_dict = _create_arg_dict(argument_list)
+    action = arg_dict.get('action')
     _validate_action(action)
-    task_list = TaskList('tasks.json')
+    task_list = TaskList(filename)
     globals().get(action, 'help')(arg_dict, task_list)
+
+
+if __name__ == '__main__':
+    main(sys.argv, 'test_tasks.json')
