@@ -6,6 +6,8 @@ from collections import OrderedDict
 
 
 class TaskList:
+    """Class containing OrderedDict"""
+
     def __init__(self, filename):
         self.filename = filename
         self.task_dict = self.load_tasks()
@@ -13,23 +15,26 @@ class TaskList:
     def load_tasks(self):
         # Loads tasks from json file (keeps order)
         try:
-            file = open(self.filename, 'r')
+            file = open(self.filename)
         except FileNotFoundError:
             return OrderedDict()
 
         try:
             tasks_json = json.load(file)  # list of dictionaries
-            task_list = [Task(task) for task in tasks_json]  # list of Task
+            task_list = [Task(task) for task in tasks_json]  # list of Tasks
             task_dict = OrderedDict((task.hash, task) for task in task_list)
             return task_dict
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, ValueError):
             # override default error msg
             error_msg = f"{self.filename} is corrupted"\
                         " - requested action was not performed"
             raise json.JSONDecodeError(error_msg)
 
     def save_tasks(self):
+        # Serialize, sort and save Tasks to a file.
         json_list = [task.serialized_task() for task in self.task_dict.values()]
+        # Sort by date string. It actually works because of choosen format
+        json_list.sort(key=lambda x: x['date'] if x['date'] else 'foobar')
         # actual save to file
         with open(self.filename, 'w') as file:
             json.dump(json_list, file)
@@ -105,20 +110,39 @@ class Task:
         }
         return task_json
 
+    def updated_task(self, arg_dict):
+        """
+        Updates empty values of arg_dict and returns it.
+        ISSUES: User can't change date to None, DRY violation,
+        edit with hash and without arguments will result in success message
+        """
+        name = arg_dict['name']
+        arg_dict['name'] = name if name else self.name
+        date = arg_dict['date']
+        arg_dict['date'] = date if date else self.date_string
+        desc = arg_dict['description']
+        arg_dict['description'] = desc if desc else self.description
+        return arg_dict
+
 
 def _create_arg_dict(arg_list):
     """Creates dictionary with keys and values of provided arguments"""
-    valid_arg_names = {'name', 'date', 'hash', 'description'}
-    arg_dict = {'action': arg_list[1]}
+    arg_dict = {
+        'action': arg_list[1],
+        'name': None,
+        'date': None,
+        'description': None
+    }
     arg_list = arg_list[2:]  # removes filename and action value
+
     # args have to be passed in pairs : arg_name <space> value
-    if len(arg_list) % 2 == 1:
-        error_msg = 'Every argument has to have value. If you want to pass' \
-            ' value with spaces you have to put it in quotes.'
-        raise SyntaxError(error_msg)
-    # awful looking loop - propably should fix it later
+    # if len(arg_list) is odd then user provided either hash or display filter
+    if len(arg_list) % 2:
+        arg_dict['odd_argument'] = arg_list[0]
+        arg_list = arg_list[1:]
+    # assign values to keys in arg_dict
     for i in range(0, len(arg_list), 2):
-        if arg_list[i] in valid_arg_names:
+        if arg_list[i] in arg_dict:
             key = arg_list[i]
             value = arg_list[i+1]
             arg_dict[key] = value
@@ -138,14 +162,16 @@ def add(arg_dict, task_list):
 
 
 def delete(arg_dict, task_list):
-    hash = arg_dict.get('hash')
+    hash = arg_dict.get('odd_argument')
     task_list.delete_task(hash)
     print(f'Task {hash} deleted succesfully!')
 
 
 def edit(arg_dict, task_list):
-    hash = arg_dict.get('hash')
-    if task_list.get_task(hash):
+    hash = arg_dict.get('odd_argument')
+    old_task = task_list.get_task(hash)
+    if old_task:
+        arg_dict = old_task.updated_task(arg_dict)
         task_list.new_task(Task(arg_dict))
         task_list.delete_task(hash)
         print("Task edited succesfully!")
