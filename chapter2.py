@@ -224,6 +224,19 @@ def display(arg_dict, task_list):
         print(task)
 
 
+def help(foo, bar):
+    # Not using those ^ arguments
+    msg = """
+It's very simple task manager, viable commands are:
+1. add: add name 'task name' description 'task description' date 'task date'
+2. delete: delete 'task hash'
+3. edit: edit 'task hash' name 'new name' description 'new des' date 'new date'
+4. display: display 'optional filter'
+NOTICE: date format is: 'YYYY-MM-DD hh:mm' example: '2020-01-01 01:01'
+    """
+    print(msg)
+
+
 if __name__ == '__main__':
     arg_dict = _create_arg_dict(sys.argv)
     action = arg_dict['action']
