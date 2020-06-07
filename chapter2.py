@@ -102,7 +102,9 @@ class Task:
         self._create_id_hash()
 
     def __str__(self):
-        return f"Task: {self.name} {self.description} {self.date} {self.hash}"
+        string = f"{self.hash} name: '{self.name}' date: {self.date}"\
+                 f" description: '{self.description}'"
+        return string
 
     @property
     def name(self):
@@ -165,6 +167,9 @@ class Task:
 
 def _create_arg_dict(arg_list):
     """Creates dictionary with keys and values of provided arguments"""
+    if len(arg_list) == 1:
+        return {'action': 'help'}
+
     arg_dict = {
         'action': arg_list[1],
         'name': None,
@@ -180,6 +185,7 @@ def _create_arg_dict(arg_list):
         arg_list = arg_list[1:]
     # assign values to keys in arg_dict
     for i in range(0, len(arg_list), 2):
+
         if arg_list[i] in arg_dict:
             key = arg_list[i]
             value = arg_list[i+1]
@@ -224,14 +230,24 @@ def display(arg_dict, task_list):
         print(task)
 
 
-def help(foo, bar):
+def help(arg_dict, task_list):
     # Not using those ^ arguments
     msg = """
-It's very simple task manager, viable commands are:
+It's a very simple task manager. Viable commands are:
+
 1. add: add name 'task name' description 'task description' date 'task date'
+example command: add name 'clean' description 'room' date '2020-06-01 15:00'
+
 2. delete: delete 'task hash'
+example command: delete 'abcdefghijklmnoprst'
+
 3. edit: edit 'task hash' name 'new name' description 'new des' date 'new date'
+example command: edit 'abcdefghijklm' name 'new name' date '2020-06-01 15:00'
+
 4. display: display 'optional filter'
+example command: display 'today'
+
+5. help
 NOTICE: date format is: 'YYYY-MM-DD hh:mm' example: '2020-01-01 01:01'
     """
     print(msg)
@@ -246,4 +262,4 @@ def main(argument_list, filename):
 
 
 if __name__ == '__main__':
-    main(sys.argv, 'test_tasks.json')
+    main(sys.argv, 'tasks.json')
