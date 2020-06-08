@@ -29,21 +29,25 @@ Viable actions are :
 
        python chapter2.py help
  - add
-	arguments: ***name***, description, date (YYYY-MM-DD HH:MM -> 2000-01-01 13:01)
+
+Arguments: ***name***, description, date (YYYY-MM-DD HH:MM -> 2000-01-01 13:01)
 
        python chapter2.py add name 'name of task' description 'task description' date '2020-06-21 06:00'
 - edit
+
 Arguments: ***hash***, name, description, date
 
       python chapter2.py edit 'b60dbf22576d376a5063caa6d663f2d3' name 'new name'
 
 - delete:
+
 Arguments: ***hash***
 
 	  python chapter2.py delete 'f693d2aea61c011c8b95b3b393ed34c0'
 
 
  - display
+
  Arguments: all, today, active, expired
 
        python chapter2.py display active
