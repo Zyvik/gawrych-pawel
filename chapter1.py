@@ -39,7 +39,7 @@ class Car:
 
     @car_mass.setter
     def car_mass(self, car_mass):
-        if not (isinstance(car_mass, int) or isinstance(car_mass, float)):
+        if not isinstance(car_mass, (int, float)):
             error_msg = 'car_mass has to be an integer or a folat'
             raise TypeError(error_msg)
         if not 0 < car_mass <= self.MAX_CAR_MASS:
