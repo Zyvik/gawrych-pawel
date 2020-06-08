@@ -29,14 +29,14 @@ class TestCar(unittest.TestCase):
     def test_total_mass(self):
         car = Car(1, 1, 1)
         expected_mass = car.pax_count * car.PAX_MASS + car.car_mass
-        self.assertEquals(car.total_mass, expected_mass)
+        self.assertEqual(car.total_mass, expected_mass)
 
     def test_total_mass_value_change_valid(self):
         car = Car(1, 1, 1)
         initial_total_mass = car.total_mass
         car.pax_count += 1
         expected_total_mass = initial_total_mass + car.PAX_MASS
-        self.assertEquals(car.total_mass, expected_total_mass)
+        self.assertEqual(car.total_mass, expected_total_mass)
 
     # Tests under this are propably redundant. I'm keeping them just in case.
     def test_total_mass_value_change_invalid(self):
@@ -46,7 +46,7 @@ class TestCar(unittest.TestCase):
             car.pax_count = 0
             self.fail()
         except IllegalCarError:
-            self.assertEquals(car.total_mass, initial_total_mass)
+            self.assertEqual(car.total_mass, initial_total_mass)
 
     def test_argument_change_invalid(self):
         car = Car(1, 1, 1)
@@ -54,19 +54,19 @@ class TestCar(unittest.TestCase):
             car.car_mass = 2001
             self.fail()
         except IllegalCarError:
-            self.assertEquals(car.car_mass, 1)
+            self.assertEqual(car.car_mass, 1)
 
         try:
             car.pax_count = 6
             self.fail()
         except IllegalCarError:
-            self.assertEquals(car.pax_count, 1)
+            self.assertEqual(car.pax_count, 1)
 
         try:
             car.gear_count = -1
             self.fail()
         except IllegalCarError:
-            self.assertEquals(car.gear_count, 1)
+            self.assertEqual(car.gear_count, 1)
 
 
 if __name__ == '__main__':
